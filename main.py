@@ -4,6 +4,7 @@
 ###########
 import os
 import configparser
+import re #regex
 
 actualfolder = os.getcwd()
 
@@ -23,12 +24,12 @@ if not os.path.exists('inventory.ini'):
         genre = input("Insert genre: ") or 'N/A'
         released = input("Is this song released? ") or 'N/A'
         f.write('[Song1]\n')
-        f.write(f'artist = {artist}\n') 
-        f.write(f'title = {song_title}\n')
-        f.write(f'remix = {remix}\n')
-        f.write(f'mashup = {mashup}\n')
-        f.write(f'genre = {genre}\n')
-        f.write(f'released = {released}\n')
+        f.write(f'Artist = {artist}\n') 
+        f.write(f'Title = {song_title}\n')
+        f.write(f'Remix = {remix}\n')
+        f.write(f'Mashup = {mashup}\n')
+        f.write(f'Genre = {genre}\n')
+        f.write(f'Released = {released}\n')
 
 # Initiate parser
 config = configparser.ConfigParser()
@@ -42,7 +43,7 @@ def show_inventory():
         # Loop through each section and extract the data
         for section in sections:
             artist = config.get(section, 'Artist')
-            song_title = config.get(section, 'Song Title')
+            song_title = config.get(section, 'Title')
             remix = config.get(section, 'Remix')
             mashup = config.get(section, 'Mashup')
             genre = config.get(section, 'Genre')
@@ -120,6 +121,26 @@ def remove_entry():
         # If the user does not confirm, do not delete the section
         print(f'{section_to_delete} has not been deleted.')
 
+def find_entries_by_genre():
+    genre_name = input("Enter the name of the genre: ")
+
+    entries = []
+    for section in config.sections():
+        if 'genre' in config[section]:
+            genre = config[section]['genre']
+            if re.search(genre_name.lower(), genre.lower()):
+                entries.append(dict(config[section]))
+
+    # print the entries found
+    if entries:
+        print("Entries found for genre: ", genre_name)
+        for i, entry in enumerate(entries):
+            print(f"Entry {i + 1}:")
+            for key, value in entry.items():
+                print(f"{key}: {value}")
+            print("")
+    else:
+        print("No entries found for genre: ", genre_name)
 
 def exit_program():
         print("Exiting the program...")
@@ -130,7 +151,8 @@ menu_options = {
         "1": show_inventory,
         "2": add_entry,
         "3": remove_entry,
-        "4": exit_program,
+        "4": find_entries_by_genre,
+        "5": exit_program
     }
 
 # Print the menu
@@ -138,7 +160,8 @@ menu_options = {
 print("1- Show inventory")
 print("2- Add entry to inventory")
 print("3- Delete entry from inventory")
-print("4. Exit")
+print("4- Find entries by genre")
+print("5- Exit")
 
 # Ask the user for input
 choice = input("Please enter your choice: ")
